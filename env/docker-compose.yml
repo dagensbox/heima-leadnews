@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  headlines-mysql:
+    hostname: headlines-mysql
+    container_name: headlines-mysql
+    privileged: true
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --max_connections=2000 --max_allowed_packet=64M
+    environment:
+      - TZ=Asia/Shanghai
+      - MYSQL_ROOT_PASSWORD=123123
+    volumes:
+      - D:\mycode\IdeaProjects\04microservices\heima-leadnews\env\mysql-volume\data:/var/lib/mysql
+      - D:\mycode\IdeaProjects\04microservices\heima-leadnews\env\mysql-volume\conf:/etc/mysql/conf.d
+    ports:
+      - "3307:3306"
+    image: mysql:5.7
+
+  headlines-nacos:
+    hostname: headlines-nacos
+    container_name: headlines-nacos
+    environment:
+      - TZ=Asia/Shanghai
+      - MODE=standalone
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=192.168.80.1
+      - MYSQL_SERVICE_PORT=3307
+      - MYSQL_SERVICE_USER=root
+      - MYSQL_SERVICE_PASSWORD=123123
+      - MYSQL_SERVICE_DB_NAME=nacos
+      - MYSQL_SERVICE_DB_PARAM=characterEncoding=utf8&connectTimeout=10000&socketTimeout=3000&autoReconnect=true&useSSL=false&serverTimezone=UTC
+      - JVM_XMS=128m
+      - JVM_XMX=128m
+      - JVM_XMN=128m
+    ports:
+      - "8848:8848"
+    image: nacos/nacos-server:v2.1.1

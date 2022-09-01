@@ -1,0 +1,13 @@
+server:
+  port: 8001
+  
+spring:
+  application:
+    name: leadnews-user
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.80.1:8848
+      config:
+        server-addr: 192.168.80.1:8848
+        file-extension: yml

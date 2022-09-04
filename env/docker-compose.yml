@@ -15,6 +15,14 @@ services:
       - "3307:3306"
     image: mysql:5.7
 
+  headlines-redis:
+    hostname: headlines-redis
+    container_name: headlines-redis
+    command: redis-server --save 60 1 --loglevel warning
+    ports:
+      - "6379:6379"
+    image: redis:7.0.4-bullseye
+
   headlines-nacos:
     hostname: headlines-nacos
     container_name: headlines-nacos

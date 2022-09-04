@@ -9,7 +9,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 /**
  * @author 12141
  */
-@SpringBootApplication(exclude = {RedisAutoConfiguration.class})
+@SpringBootApplication
 @EnableDiscoveryClient
 @MapperScan("com.heima.user.mapper")
 public class UserApplication {

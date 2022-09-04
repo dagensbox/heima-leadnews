@@ -40,7 +40,7 @@ services:
       - JVM_XMX=128m
       - JVM_XMN=128m
     ports:
-      - "8848:8848"
+      - "8848:8848" 
     image: nacos/nacos-server:v2.1.1
 
   headlines-nginx:
@@ -52,3 +52,18 @@ services:
     ports:
       - "6001:6001"
     image: nginx:stable-perl
+
+  headlines-minio:
+    hostname: headlines-minio
+    container_name: headlines-minio
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=minio123
+    volumes:
+      - D:\mycode\IdeaProjects\04microservices\heima-leadnews\env\minio-volume\config:/root/.minio
+      - D:\mycode\IdeaProjects\04microservices\heima-leadnews\env\minio-volume\data:/data
+    ports:
+      - "9000:9000"
+      - "9090:9090"
+    command: server /data --console-address ":9090"
+    image: minio/minio:RELEASE.2022-09-01T23-53-36Z

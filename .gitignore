@@ -39,3 +39,4 @@ gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
 /env/mysql-volume/
+/env/minio-volume/

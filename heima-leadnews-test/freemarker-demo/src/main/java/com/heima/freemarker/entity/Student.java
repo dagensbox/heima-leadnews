@@ -1,8 +1,9 @@
 package com.heima.freemarker.entity;
 
+
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 /**
  * @author 12141
@@ -11,6 +12,6 @@ import java.time.LocalDate;
 public class Student {
     private String name;
     private int age;
-    private LocalDate birthday;
+    private Date birthday;
     private Float money;
 }

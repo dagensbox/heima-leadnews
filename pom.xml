@@ -16,6 +16,7 @@
         <module>heima-leadnews-service</module>
         <module>heima-leadnews-gateway</module>
         <module>heima-leadnews-test</module>
+        <module>heima-leadnews-basic</module>
     </modules>
 
     <!-- 继承Spring boot工程 -->
@@ -66,6 +67,9 @@
         <knife4j.version>2.0.2</knife4j.version>
         <com.alibaba.cloud>2.2.5.RELEASE</com.alibaba.cloud>
         <xxl.job.version>2.2.0-SNAPSHOT</xxl.job.version>
+
+        <!--okhttp-->
+        <okhttp3.version>4.10.0</okhttp3.version>
     </properties>
     <dependencies>
         <!--日志处理包-->

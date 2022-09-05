@@ -51,6 +51,7 @@ services:
       - D:\mycode\IdeaProjects\04microservices\heima-leadnews\env\nginx-volume\html:/usr/share/nginx/html:ro
     ports:
       - "6001:6001"
+      - "6002:6002"
     image: nginx:stable-perl
 
   headlines-minio:

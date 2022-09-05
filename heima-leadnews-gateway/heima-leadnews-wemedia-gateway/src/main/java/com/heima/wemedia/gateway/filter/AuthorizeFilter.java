@@ -40,20 +40,28 @@ public class AuthorizeFilter implements Ordered, GlobalFilter {
         }
 
         //5.判断token是否有效
+        Claims claimsBody;
         try {
-            Claims claimsBody = AppJwtUtil.getClaimsBody(token);
-            //是否是过期
+            claimsBody = AppJwtUtil.getClaimsBody(token);
+            //判断是否过期
             int result = AppJwtUtil.verifyToken(claimsBody);
-            if(result == 1 || result  == 2){
+            if (result == 1 || result == 2){
                 response.setStatusCode(HttpStatus.UNAUTHORIZED);
                 return response.setComplete();
             }
-
         } catch (Exception e) {
             e.printStackTrace();
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            return response.setComplete();
         }
-
-        //6.放行
+        //6、网关进行token解析后，把解析后的用户信息存储到header中
+        //获得token解析后中的用户信息
+        Object userId = claimsBody.get("id");
+        //在header中添加新的信息
+        ServerHttpRequest serverHttpRequest = request.mutate().headers(httpHeaders -> httpHeaders.add("userId", userId + "")).build();
+        //重置header
+        exchange.mutate().request(serverHttpRequest).build();
+        //7、放行
         return chain.filter(exchange);
     }
 

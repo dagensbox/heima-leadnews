@@ -110,6 +110,18 @@ public class WmMaterialServiceImpl extends ServiceImpl<WmMaterialMapper, WmMater
         return ResponseResult.okResult(AppHttpCodeEnum.SUCCESS);
     }
 
+    @Override
+    public ResponseResult collectOperationByPicId(Integer id, Short isCollection) {
+        if (id == null || isCollection == null){
+            return ResponseResult.errorResult(AppHttpCodeEnum.PARAM_INVALID);
+        }
+        WmMaterial wmMaterial = new WmMaterial();
+        wmMaterial.setId(id);
+        wmMaterial.setIsCollection(isCollection);
+        this.updateById(wmMaterial);
+        return ResponseResult.okResult(AppHttpCodeEnum.SUCCESS);
+    }
+
     @Nullable
     private String uploadPicAndGetPath(MultipartFile multipartFile) {
         String fileName = UuidUtils.generateUuid().replace("-", "");

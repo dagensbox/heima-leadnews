@@ -1,5 +1,6 @@
 package com.heima.wemedia.controller.v1;
 
+import com.heima.common.constants.WemediaConstants;
 import com.heima.model.common.dtos.ResponseResult;
 import com.heima.model.wemedia.dtos.WmMaterialDto;
 import com.heima.wemedia.service.WmMaterialService;
@@ -30,6 +31,16 @@ public class WmMaterialController {
     @GetMapping("/del_picture/{id}")
     public ResponseResult deletePicByPicId(@PathVariable("id") Integer id){
         return wmMaterialService.deletePicByPicId(id);
+    }
+
+    @GetMapping("/cancel_collect/{id}")
+    public ResponseResult cancelCollectByPicId(@PathVariable("id") Integer id){
+        return wmMaterialService.collectOperationByPicId(id,WemediaConstants.CANCEL_COLLECT_MATERIAL);
+    }
+
+    @GetMapping("/collect/{id}")
+    public ResponseResult collectByPicId(@PathVariable("id") Integer id){
+        return wmMaterialService.collectOperationByPicId(id, WemediaConstants.COLLECT_MATERIAL);
     }
 
 }

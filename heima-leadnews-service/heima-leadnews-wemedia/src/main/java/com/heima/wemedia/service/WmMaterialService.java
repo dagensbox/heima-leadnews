@@ -35,4 +35,14 @@ public interface WmMaterialService extends IService<WmMaterial> {
      * @return
      */
     ResponseResult deletePicByPicId(Integer id);
+
+
+    /**
+     * 收藏或取消收藏接口
+     *
+     * @param id
+     * @param isCollection 0取消收藏 1收藏
+     * @return
+     */
+    ResponseResult collectOperationByPicId(Integer id, Short isCollection);
 }

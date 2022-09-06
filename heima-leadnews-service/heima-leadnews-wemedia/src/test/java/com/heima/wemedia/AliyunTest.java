@@ -22,14 +22,14 @@ public class AliyunTest {
     @Autowired
     private GreenTextScan greenTextScan;;
 
-    @Test
+    //@Test
     void testScanText() throws Exception {
         Map map = greenTextScan.greeTextScan("我爱冰毒！");
         System.out.println(map);
     }
 
 
-    @Test
+    //@Test
     void testScanImage() throws Exception {
         byte[] bytes = fileStorageService.downLoadFile("http://192.168.80.1:9000/leadnews/yellow/17489f4bc15285a0.gif");
         Map map = greenImageScan.imageScan(Arrays.asList(bytes));

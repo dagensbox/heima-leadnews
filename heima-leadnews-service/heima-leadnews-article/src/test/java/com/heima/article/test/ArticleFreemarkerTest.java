@@ -37,7 +37,7 @@ public class ArticleFreemarkerTest {
     @Autowired
     private FileStorageService fileStorageService;
 
-    @Test
+    //@Test
     void createStaticUrlTest() throws Exception {
         //1、获取文章内容
         ApArticleContent apArticleContent = apArticleContentMapper.selectOne(Wrappers.<ApArticleContent>lambdaQuery()

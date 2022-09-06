@@ -120,6 +120,47 @@ public class WmNewsServiceImpl extends ServiceImpl<WmNewsMapper, WmNews> impleme
         return ResponseResult.okResult(AppHttpCodeEnum.SUCCESS);
     }
 
+    @Override
+    public ResponseResult deleteNewsByNewsId(Integer id) {
+        if (id == null) {
+            return ResponseResult.errorResult(501, "文章Id不可缺少");
+        }
+        WmNews wmNews = this.getById(id);
+        if (wmNews == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.DATA_NOT_EXIST);
+        }
+        if (wmNews.getStatus() == WmNews.Status.PUBLISHED.getCode()) {
+            return ResponseResult.errorResult(501, "文章已发布，不能删除");
+        }
+
+        wmNewsMaterialMapper.delete(Wrappers.<WmNewsMaterial>lambdaQuery().eq(WmNewsMaterial::getNewsId, id));
+        this.removeById(id);
+        return ResponseResult.okResult(AppHttpCodeEnum.SUCCESS);
+    }
+
+    @Override
+    public ResponseResult downOrUpNews(WmNewsDto dto) {
+        //0、参数校验
+        if (dto == null || dto.getId() == null || dto.getEnable() == null) {
+            return ResponseResult.errorResult(501, "文章Id不可缺少");
+        }
+        if (dto.getEnable() != 0 && dto.getEnable() != 1) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.PARAM_INVALID);
+        }
+        //1、查找数据
+        WmNews wmNews = this.getById(dto.getId());
+        if (wmNews == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.DATA_NOT_EXIST);
+        }
+        if (wmNews.getStatus() != WmNews.Status.PUBLISHED.getCode()) {
+            return ResponseResult.errorResult(501, "当前文章不是发布状态,不能上下架");
+        }
+        //3、执行操作
+        wmNews.setEnable(dto.getEnable());
+        this.updateById(wmNews);
+        return ResponseResult.okResult(AppHttpCodeEnum.SUCCESS);
+    }
+
     /**
      * 第一个功能：如果当前封面类型为自动，则设置封面类型的数据
      * 匹配规则：
@@ -145,19 +186,19 @@ public class WmNewsServiceImpl extends ServiceImpl<WmNewsMapper, WmNews> impleme
                 //单图
                 wmNews.setType(WemediaConstants.WM_NEWS_SINGLE_IMAGE);
                 images = materials.stream().limit(1).collect(Collectors.toList());
-            }else {
+            } else {
                 //无图
                 wmNews.setType(WemediaConstants.WM_NEWS_NONE_IMAGE);
                 images = new ArrayList<>();
             }
             //修改文章
-            if (images.size() > 0){
-                wmNews.setImages(StringUtils.join(images,","));
+            if (images.size() > 0) {
+                wmNews.setImages(StringUtils.join(images, ","));
             }
             this.updateById(wmNews);
         }
-        if (images != null && images.size() > 0){
-            saveRelativeInfo(images,wmNews.getId(),WemediaConstants.WM_COVER_REFERENCE);
+        if (images != null && images.size() > 0) {
+            saveRelativeInfo(images, wmNews.getId(), WemediaConstants.WM_COVER_REFERENCE);
         }
     }
 
@@ -230,7 +271,7 @@ public class WmNewsServiceImpl extends ServiceImpl<WmNewsMapper, WmNews> impleme
 
         if (wmNews.getId() == null) {
             //保存
-            if(wmNews.getType() == -1){
+            if (wmNews.getType() == -1) {
                 wmNews.setType(null);
             }
             this.save(wmNews);

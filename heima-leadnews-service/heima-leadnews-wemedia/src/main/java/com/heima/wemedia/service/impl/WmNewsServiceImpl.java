@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  * @author 12141
  */
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class WmNewsServiceImpl extends ServiceImpl<WmNewsMapper, WmNews> implements WmNewsService {
 
     @Autowired

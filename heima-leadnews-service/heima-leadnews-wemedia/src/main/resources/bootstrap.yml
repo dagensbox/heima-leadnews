@@ -10,3 +10,18 @@ spring:
       config:
         server-addr: 192.168.80.1:8848
         file-extension: yml
+seata:
+  registry:
+    type: nacos
+    nacos:
+      server-addr: 192.168.80.1:8848
+      namespace: ""
+      group: SEATA_GROUP
+      application: leadnews-seata-server
+      username: nacos
+      password: nacos
+  tx-service-group: seata-demo
+  service:
+    vgroup-mapping:
+      seata-demo: default
+  data-source-proxy-mode: AT

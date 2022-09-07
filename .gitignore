@@ -40,3 +40,4 @@ gradle-app.setting
 .gradletasknamecache
 /env/mysql-volume/
 /env/minio-volume/
+/env/seata-volume/

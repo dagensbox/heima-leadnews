@@ -117,7 +117,7 @@ public class GreenImageScan {
                             //do something
                             System.out.println("scene = [" + scene + "]");
                             System.out.println("suggestion = [" + suggestion + "]");
-                            System.out.println("suggestion = [" + label + "]");
+                            System.out.println("label = [" + label + "]");
                             if (!suggestion.equals("pass")) {
                                 resultMap.put("suggestion", suggestion);
                                 resultMap.put("label", label);

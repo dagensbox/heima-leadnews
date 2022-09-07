@@ -1,0 +1,78 @@
+package com.heima.article.service.impl;
+
+import com.alibaba.cloud.commons.lang.StringUtils;
+import com.alibaba.fastjson.JSONArray;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.heima.article.mapper.ApArticleContentMapper;
+import com.heima.article.mapper.ApArticleMapper;
+import com.heima.article.service.ArticleFreemarkerService;
+import com.heima.file.service.FileStorageService;
+import com.heima.model.article.pojos.ApArticle;
+import com.heima.model.article.pojos.ApArticleContent;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @author 12141
+ */
+@Service
+@Slf4j
+@Transactional
+public class ArticleFreemarkerServiceImpl implements ArticleFreemarkerService {
+
+
+    @Autowired
+    private ApArticleMapper apArticleMapper;
+
+
+    @Autowired
+    private Configuration configuration;
+
+    @Autowired
+    private FileStorageService fileStorageService;
+
+
+    @Override
+    @Async
+    public void buildArticle2Minio(ApArticle apArticle, String content) {
+        //文章id已知
+        try {
+            //1、获取文章内容
+            if (StringUtils.isNotBlank(content)) {
+                //2、文章内容通过freemarker生成html
+                StringWriter out = new StringWriter();
+                Template template = configuration.getTemplate("article.ftl");
+
+                Map<String, Object> params = new HashMap<>(4);
+                params.put("content", JSONArray.parseArray(content));
+
+                template.process(params, out);
+
+                InputStream is = new ByteArrayInputStream(out.toString().getBytes());
+
+                //3、把html上传到minio中
+                String path = fileStorageService.uploadHtmlFile("", apArticle.getId() + ".html", is);
+
+                //4、修改ap_article表,保存static_url字段
+                apArticle.setStaticUrl(path);
+                apArticleMapper.updateById(apArticle);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+

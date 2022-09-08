@@ -94,22 +94,26 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Scheduled(cron = "0 */1 * * * ?")
     public void refresh() {
-        log.info(LocalDateTime.now() +
-                "执行了com.heima.schedule.service.impl.TaskServiceImpl.refresh定时任务");
 
-        //获取所有未来数据集合的key值
-        Set<String> futureKeys = cacheService.scan(ScheduleConstants.FUTURE + "*");
-        for (String futureKey : futureKeys) {
-            String topicKey = ScheduleConstants.TOPIC + futureKey.split(ScheduleConstants.FUTURE)[1];
-            //获取该组key下当前需要消费的任务数据
-            Set<String> tasks = cacheService.zRangeByScore(futureKey, 0, System.currentTimeMillis());
-            if (!tasks.isEmpty()) {
-                //将这些任务数据添加到消费者队列中
-                cacheService.refreshWithPipeline(futureKey, topicKey, tasks);
-                log.info("成功的将" + futureKey +
-                        "下的当前需要执行的任务数据刷新到" + topicKey +"下");
+        String token = cacheService.tryLock("FUTURE_TASK_SYNC", 1000 * 30);
+
+        if (StringUtils.isNotBlank(token)){
+            log.info(LocalDateTime.now() +
+                    "执行了com.heima.schedule.service.impl.TaskServiceImpl.refresh定时任务");
+
+            //获取所有未来数据集合的key值
+            Set<String> futureKeys = cacheService.scan(ScheduleConstants.FUTURE + "*");
+            for (String futureKey : futureKeys) {
+                String topicKey = ScheduleConstants.TOPIC + futureKey.split(ScheduleConstants.FUTURE)[1];
+                //获取该组key下当前需要消费的任务数据
+                Set<String> tasks = cacheService.zRangeByScore(futureKey, 0, System.currentTimeMillis());
+                if (!tasks.isEmpty()) {
+                    //将这些任务数据添加到消费者队列中
+                    cacheService.refreshWithPipeline(futureKey, topicKey, tasks);
+                    log.info("成功的将" + futureKey +
+                            "下的当前需要执行的任务数据刷新到" + topicKey + "下");
+                }
             }
-
         }
     }
 

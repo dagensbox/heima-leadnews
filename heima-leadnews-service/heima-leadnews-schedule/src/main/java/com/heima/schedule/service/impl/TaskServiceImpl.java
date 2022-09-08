@@ -1,4 +1,4 @@
-package com.heima.schedule.service;
+package com.heima.schedule.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.heima.common.constants.ScheduleConstants;
@@ -8,17 +8,20 @@ import com.heima.model.schedule.pojos.Taskinfo;
 import com.heima.model.schedule.pojos.TaskinfoLogs;
 import com.heima.schedule.mapper.TaskinfoLogsMapper;
 import com.heima.schedule.mapper.TaskinfoMapper;
+import com.heima.schedule.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * @author 12141
@@ -75,17 +78,39 @@ public class TaskServiceImpl implements TaskService {
             String key = type + "_" + priority;
             String task_json = cacheService.lRightPop(ScheduleConstants.TOPIC + key);
 
-            if (StringUtils.isNotBlank(task_json)){
+            if (StringUtils.isNotBlank(task_json)) {
                 task = JSON.parseObject(task_json, Task.class);
             }
             //更新数据库信息
-            updateDb(task.getTaskId(),ScheduleConstants.EXECUTED);
+            updateDb(task.getTaskId(), ScheduleConstants.EXECUTED);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("poll task exception");
         }
 
         return task;
+    }
+
+    @Override
+    @Scheduled(cron = "0 */1 * * * ?")
+    public void refresh() {
+        log.info(LocalDateTime.now() +
+                "执行了com.heima.schedule.service.impl.TaskServiceImpl.refresh定时任务");
+
+        //获取所有未来数据集合的key值
+        Set<String> futureKeys = cacheService.scan(ScheduleConstants.FUTURE + "*");
+        for (String futureKey : futureKeys) {
+            String topicKey = ScheduleConstants.TOPIC + futureKey.split(ScheduleConstants.FUTURE)[1];
+            //获取该组key下当前需要消费的任务数据
+            Set<String> tasks = cacheService.zRangeByScore(futureKey, 0, System.currentTimeMillis());
+            if (!tasks.isEmpty()) {
+                //将这些任务数据添加到消费者队列中
+                cacheService.refreshWithPipeline(futureKey, topicKey, tasks);
+                log.info("成功的将" + futureKey +
+                        "下的当前需要执行的任务数据刷新到" + topicKey +"下");
+            }
+
+        }
     }
 
     /**

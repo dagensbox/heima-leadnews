@@ -30,4 +30,9 @@ public interface TaskService {
      * @return
      */
     Task poll(int type, int priority);
+
+    /**
+     * 定时将redis中zset中的数据加载到list中
+     */
+    void refresh();
 }

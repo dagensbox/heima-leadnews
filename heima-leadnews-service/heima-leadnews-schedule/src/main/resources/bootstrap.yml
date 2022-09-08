@@ -1,13 +1,12 @@
 server:
-  port: 7002
+  port: 8004
 spring:
   application:
-    name: leadnews-wemedia-gateway
+    name: leadnews-schedule
   cloud:
     nacos:
       discovery:
         server-addr: 192.168.80.1:8848
-        group: GATEWAY-GROUP
       config:
         server-addr: 192.168.80.1:8848
         file-extension: yml

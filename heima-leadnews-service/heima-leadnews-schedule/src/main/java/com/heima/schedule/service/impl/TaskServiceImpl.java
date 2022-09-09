@@ -85,9 +85,9 @@ public class TaskServiceImpl implements TaskService {
 
             if (StringUtils.isNotBlank(task_json)) {
                 task = JSON.parseObject(task_json, Task.class);
+                //更新数据库信息
+                updateDb(task.getTaskId(), ScheduleConstants.EXECUTED);
             }
-            //更新数据库信息
-            updateDb(task.getTaskId(), ScheduleConstants.EXECUTED);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("poll task exception");

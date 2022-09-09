@@ -1,6 +1,7 @@
 package com.heima.schedule.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.heima.common.constants.ScheduleConstants;
 import com.heima.common.redis.CacheService;
 import com.heima.model.schedule.dtos.Task;
@@ -17,8 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StopWatch;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Set;
@@ -97,7 +102,7 @@ public class TaskServiceImpl implements TaskService {
 
         String token = cacheService.tryLock("FUTURE_TASK_SYNC", 1000 * 30);
 
-        if (StringUtils.isNotBlank(token)){
+        if (StringUtils.isNotBlank(token)) {
             log.info(LocalDateTime.now() +
                     "执行了com.heima.schedule.service.impl.TaskServiceImpl.refresh定时任务");
 
@@ -116,6 +121,38 @@ public class TaskServiceImpl implements TaskService {
             }
         }
     }
+
+    @Override
+    @PostConstruct
+    @Scheduled(cron = "0 */5 * * * ?")
+    public void reloadData() {
+        log.info(LocalTime.now() + "清除redis中任务缓存");
+        clearCache();
+        log.info(LocalTime.now() + "重新同步数据库中任务到缓存中");
+        LocalDateTime localDateTime = LocalDateTime.now().plusMinutes(5);
+        Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+
+        //查看执行时间小于未来5分钟的所有任务
+        LambdaQueryWrapper<Taskinfo> lqw = new LambdaQueryWrapper<>();
+        lqw.lt(Taskinfo::getExecuteTime, date);
+
+        taskinfoMapper.selectList(lqw);
+
+    }
+
+    /**
+     * 删除缓存中未来数据集合和当前消费者队列中的所有key
+     */
+    private void clearCache() {
+        //future_
+        Set<String> futureKeys = cacheService.scan(ScheduleConstants.FUTURE + "*");
+        //topic_
+        Set<String> topicKeys = cacheService.scan(ScheduleConstants.TOPIC + "*");
+        cacheService.delete(futureKeys);
+        cacheService.delete(topicKeys);
+    }
+
 
     /**
      * 删除redis中的任务数据

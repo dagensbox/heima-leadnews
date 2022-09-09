@@ -35,4 +35,10 @@ public interface TaskService {
      * 定时将redis中zset中的数据加载到list中
      */
     void refresh();
+
+    /**
+     * 定时将数据库中的任务同步到缓存
+     *
+     */
+    void reloadData();
 }

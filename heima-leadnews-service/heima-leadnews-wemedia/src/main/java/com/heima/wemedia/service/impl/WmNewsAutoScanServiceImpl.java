@@ -20,7 +20,6 @@ import com.heima.wemedia.mapper.WmNewsMapper;
 import com.heima.wemedia.mapper.WmSensitiveMapper;
 import com.heima.wemedia.mapper.WmUserMapper;
 import com.heima.wemedia.service.WmNewsAutoScanService;
-import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,7 +40,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-@GlobalTransactional(rollbackFor = {Exception.class})
+@Transactional(rollbackFor = {Exception.class})
 public class WmNewsAutoScanServiceImpl implements WmNewsAutoScanService {
 
     @Autowired

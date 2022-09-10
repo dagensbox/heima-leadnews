@@ -33,14 +33,14 @@ public class WmNewsTaskServiceImpl implements WmNewsTaskService {
 
 
     @Override
-    @Async
+    @Async()
     public void addNews2Task(Integer id, Date publishTime) {
         log.info(LocalTime.now() + "添加任务到延迟服务中~~begin");
 
         Task task = new Task();
         task.setExecuteTime(publishTime.getTime());
         task.setTaskType(TaskTypeEnum.NEWS_SCAN_TIME.getTaskType());
-        task.setTaskType(TaskTypeEnum.NEWS_SCAN_TIME.getPriority());
+        task.setPriority(TaskTypeEnum.NEWS_SCAN_TIME.getPriority());
         WmNews wmNews = new WmNews();
         wmNews.setId(id);
         task.setParameters(ProtostuffUtil.serialize(wmNews));

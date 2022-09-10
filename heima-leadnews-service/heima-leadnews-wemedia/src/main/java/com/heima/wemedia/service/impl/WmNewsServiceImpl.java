@@ -24,7 +24,6 @@ import com.heima.wemedia.mapper.WmNewsMaterialMapper;
 import com.heima.wemedia.service.WmNewsAutoScanService;
 import com.heima.wemedia.service.WmNewsService;
 import com.heima.wemedia.service.WmNewsTaskService;
-import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,7 @@ import java.util.stream.Collectors;
  * @author 12141
  */
 @Service
-@GlobalTransactional(rollbackFor = Exception.class)
+@Transactional(rollbackFor = Exception.class)
 public class WmNewsServiceImpl extends ServiceImpl<WmNewsMapper, WmNews> implements WmNewsService {
 
     @Autowired
@@ -50,8 +49,8 @@ public class WmNewsServiceImpl extends ServiceImpl<WmNewsMapper, WmNews> impleme
     @Autowired
     private WmMaterialMapper wmMaterialMapper;
 
-    /*@Autowired
-    private WmNewsAutoScanService wmNewsAutoScanService;*/
+    @Autowired
+    private WmNewsAutoScanService wmNewsAutoScanService;
 
     @Autowired
     private WmNewsTaskService wmNewsTaskService;
@@ -128,7 +127,7 @@ public class WmNewsServiceImpl extends ServiceImpl<WmNewsMapper, WmNews> impleme
         saveRelativeInfoForCover(dto, materials, wmNews);
 
         //调用自动审核
-        //wmNewsAutoScanService.autoScanWmNews(wmNews.getId());
+//        wmNewsAutoScanService.autoScanWmNews(wmNews.getId());
         wmNewsTaskService.addNews2Task(wmNews.getId(), wmNews.getPublishTime());
 
 

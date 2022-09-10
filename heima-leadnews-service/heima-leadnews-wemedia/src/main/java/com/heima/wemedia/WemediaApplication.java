@@ -9,10 +9,12 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 
 @SpringBootApplication
 @EnableDiscoveryClient
+@EnableTransactionManagement
 @MapperScan("com.heima.wemedia.mapper")
 @EnableFeignClients(clients = {IArticleClient.class, IScheduleClient.class})
 @EnableAsync

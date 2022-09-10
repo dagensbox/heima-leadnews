@@ -26,6 +26,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -137,7 +138,19 @@ public class TaskServiceImpl implements TaskService {
         LambdaQueryWrapper<Taskinfo> lqw = new LambdaQueryWrapper<>();
         lqw.lt(Taskinfo::getExecuteTime, date);
 
-        taskinfoMapper.selectList(lqw);
+        List<Taskinfo> allTasks = taskinfoMapper.selectList(lqw);
+
+        if (allTasks != null && !allTasks.isEmpty()){
+            for (Taskinfo taskinfo : allTasks) {
+                Task task = new Task();
+                BeanUtils.copyProperties(taskinfo,task);
+                task.setExecuteTime(taskinfo.getExecuteTime().getTime());
+                addTask2Cache(task);
+            }
+
+
+        }
+
 
     }
 
@@ -205,6 +218,7 @@ public class TaskServiceImpl implements TaskService {
      */
     private void addTask2Cache(Task task) {
         String key = task.getTaskType() + "_" + task.getPriority();
+        log.info("redis存入{}，key后缀{}",task,key);
 
         //获取5分钟之后的时间
         LocalDateTime after5 = LocalDateTime.now().plusMinutes(5);
@@ -212,9 +226,11 @@ public class TaskServiceImpl implements TaskService {
 
         //2.1 如果任务的执行时间小于等于当前时间，存入list
         if (task.getExecuteTime() <= System.currentTimeMillis()) {
+            log.info("{}，{}任务的执行时间小于等于当前时间，存入list",LocalTime.now(),task);
             cacheService.lLeftPush(ScheduleConstants.TOPIC + key, JSON.toJSONString(task));
         } else if (task.getExecuteTime() <= nextScheduleTime) {
             //2.2 如果任务的执行时间大于当前时间 && 小于等于预设时间（未来5分钟） 存入zset中
+            log.info("{}，{}任务的执行时间大于当前时间 && 小于等于预设时间（未来5分钟）存入zset中",LocalTime.now(),task);
             cacheService.zAdd(ScheduleConstants.FUTURE + key, JSON.toJSONString(task), task.getExecuteTime());
         }
 
@@ -236,6 +252,7 @@ public class TaskServiceImpl implements TaskService {
             BeanUtils.copyProperties(task, taskinfo);
             taskinfo.setExecuteTime(new Date(task.getExecuteTime()));
             taskinfoMapper.insert(taskinfo);
+            System.out.println(taskinfo);
 
             //mp插入后，taskId自动回填 插入task
             task.setTaskId(taskinfo.getTaskId());

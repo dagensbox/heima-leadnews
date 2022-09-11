@@ -5,7 +5,6 @@ import com.heima.common.redis.CacheService;
 import com.heima.model.schedule.dtos.Task;
 import com.heima.schedule.ScheduleApplication;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import io.seata.common.exception.DataAccessException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,7 +42,7 @@ public class RedisPipeTest {
         List<Object> objectList = cacheService.getStringRedisTemplate().executePipelined(new RedisCallback<Object>() {
             @Nullable
             @Override
-            public Object doInRedis(RedisConnection redisConnection) throws DataAccessException {
+            public Object doInRedis(RedisConnection redisConnection) {
                 for (int i = 0; i <10000 ; i++) {
                     Task task = new Task();
                     task.setTaskType(1001);

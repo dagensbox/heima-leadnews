@@ -1,7 +1,6 @@
 package com.heima.search.interceptors;
 
 import com.heima.model.user.pojos.ApUser;
-import com.heima.model.wemedia.pojos.WmUser;
 import com.heima.utils.thread.AppThreadLocalUtil;
 import com.heima.utils.thread.WmThreadLocalUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +35,7 @@ public class AppTokenInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        WmThreadLocalUtil.clear();
+        AppThreadLocalUtil.clear();
         log.info("AppTokenInterceptor清除threadLocal中的用户信息...");
     }
 }

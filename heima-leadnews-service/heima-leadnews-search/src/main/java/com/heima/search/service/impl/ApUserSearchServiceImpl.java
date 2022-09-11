@@ -34,6 +34,7 @@ public class ApUserSearchServiceImpl implements ApUserSearchService {
         if (apUserSearch != null) {
             apUserSearch.setCreatedTime(new Date());
             mongoTemplate.save(apUserSearch);
+            return;
         }
 
         //3、不存在，判断当前历史记录总量是否超过10条

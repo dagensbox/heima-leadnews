@@ -1,0 +1,10 @@
+server:
+  port: 9998
+spring:
+  data:
+    mongodb:
+      host: 192.168.80.1
+      port: 27017
+      database: leadnews-history
+#      username: root
+#      password: '123123'

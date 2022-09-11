@@ -1,4 +1,4 @@
-package com.heima.search.service;
+package com.heima.search.service.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.SortOrder;
@@ -11,19 +11,34 @@ import co.elastic.clients.json.JsonData;
 import com.heima.model.common.dtos.ResponseResult;
 import com.heima.model.common.enums.AppHttpCodeEnum;
 import com.heima.model.search.dto.UserSearchDto;
+import com.heima.model.user.pojos.ApUser;
+import com.heima.search.pojos.ApUserSearch;
+import com.heima.search.service.ApUserSearchService;
+import com.heima.search.service.ArticleSearchService;
+import com.heima.utils.thread.AppThreadLocalUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 @Service
 public class ArticleSearchServiceImpl implements ArticleSearchService {
 
     @Autowired
     private ElasticsearchClient esClient;
+
+
+    @Autowired
+    private ApUserSearchService apUserSearchService;
 
     @Override
     public ResponseResult search(UserSearchDto dto) throws IOException {
@@ -31,6 +46,13 @@ public class ArticleSearchServiceImpl implements ArticleSearchService {
         if (dto == null || StringUtils.isBlank(dto.getSearchWords())) {
             return ResponseResult.errorResult(AppHttpCodeEnum.PARAM_INVALID);
         }
+
+        //异步调用 保存搜索记录
+        ApUser user = AppThreadLocalUtil.getUser();
+        if (user != null && dto.getFromIndex() == 0) {
+            apUserSearchService.insert(dto.getSearchWords(), user.getId());
+        }
+
 
         //2、设置查询条件
         List<Query> queries = new ArrayList<>();

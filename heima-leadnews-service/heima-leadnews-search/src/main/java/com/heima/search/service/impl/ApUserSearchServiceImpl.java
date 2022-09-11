@@ -2,6 +2,7 @@ package com.heima.search.service.impl;
 
 import com.heima.model.common.dtos.ResponseResult;
 import com.heima.model.common.enums.AppHttpCodeEnum;
+import com.heima.model.search.dto.HistorySearchDto;
 import com.heima.model.user.pojos.ApUser;
 import com.heima.search.pojos.ApUserSearch;
 import com.heima.search.service.ApUserSearchService;
@@ -60,7 +61,7 @@ public class ApUserSearchServiceImpl implements ApUserSearchService {
     public ResponseResult findUserSearch() {
         //获取当前用户
         ApUser apUser = AppThreadLocalUtil.getUser();
-        if (apUser == null){
+        if (apUser == null) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN);
         }
 
@@ -69,9 +70,25 @@ public class ApUserSearchServiceImpl implements ApUserSearchService {
         return ResponseResult.okResult(list);
     }
 
+    @Override
+    public ResponseResult delUserSearch(HistorySearchDto dto) {
+        //1、检查参数
+        if (dto == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.PARAM_INVALID);
+        }
+        //2、判断是否登录
+        ApUser user = AppThreadLocalUtil.getUser();
+        if (user == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN);
+        }
+        mongoTemplate.remove(Query.query(Criteria.where("userId").is(user.getId())
+                .and("id").is(dto.getId())), ApUserSearch.class);
+        return ResponseResult.okResult(AppHttpCodeEnum.SUCCESS);
+    }
+
     private List<ApUserSearch> getApUserSearches(Integer userId) {
         Query query1 = Query.query(Criteria.where("userId").is(userId));
-        query1.with(Sort.by(Sort.Direction.DESC, "createTime"));
+        query1.with(Sort.by(Sort.Direction.DESC, "createdTime"));
         List<ApUserSearch> apUserSearches = mongoTemplate.find(query1, ApUserSearch.class);
         return apUserSearches;
     }

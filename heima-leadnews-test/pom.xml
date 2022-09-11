@@ -15,6 +15,7 @@
         <module>freemarker-demo</module>
         <module>minio-demo</module>
         <module>my-test</module>
+        <module>kafka-demo</module>
     </modules>
 
     <properties>

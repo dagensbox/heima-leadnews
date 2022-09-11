@@ -83,3 +83,23 @@ services:
   #     - SEATA_PORT=8091
   #   volumes:
   #     - D:\mycode\IdeaProjects\04microservices\heima-leadnews\env\seata-volume\config\resources:/seata-server/resources
+
+  headlines-zookeeper:
+    hostname: headlines-zookeeper
+    container_name: headlines-zookeeper
+    ports:
+      - "2181:2181"
+    image: zookeeper:3.4.14
+  
+  headlines-kafka:
+    hostname: headlines-kafka
+    container_name: headlines-kafka
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=192.168.80.1
+      - KAFKA_ZOOKEEPER_CONNECT=192.168.80.1:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://192.168.80.1:9092
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - KAFKA_HEAP_OPTS="-Xmx256M -Xms256M"
+    ports:
+      - "9092:9092"
+    image: wurstmeister/kafka:2.12-2.3.1

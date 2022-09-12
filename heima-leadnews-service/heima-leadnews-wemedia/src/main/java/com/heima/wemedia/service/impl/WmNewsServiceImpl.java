@@ -13,12 +13,14 @@ import com.heima.common.exception.CustomException;
 import com.heima.model.common.dtos.PageResponseResult;
 import com.heima.model.common.dtos.ResponseResult;
 import com.heima.model.common.enums.AppHttpCodeEnum;
+import com.heima.model.wemedia.dtos.NewsAuthDto;
 import com.heima.model.wemedia.dtos.WmNewsDto;
 import com.heima.model.wemedia.dtos.WmNewsPageReqDto;
 import com.heima.model.wemedia.pojos.WmMaterial;
 import com.heima.model.wemedia.pojos.WmNews;
 import com.heima.model.wemedia.pojos.WmNewsMaterial;
 import com.heima.model.wemedia.pojos.WmUser;
+import com.heima.model.wemedia.vos.WmNewsVo;
 import com.heima.utils.thread.WmThreadLocalUtil;
 import com.heima.wemedia.mapper.WmMaterialMapper;
 import com.heima.wemedia.mapper.WmNewsMapper;
@@ -26,6 +28,7 @@ import com.heima.wemedia.mapper.WmNewsMaterialMapper;
 import com.heima.wemedia.service.WmNewsAutoScanService;
 import com.heima.wemedia.service.WmNewsService;
 import com.heima.wemedia.service.WmNewsTaskService;
+import com.heima.wemedia.service.WmUserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +53,7 @@ public class WmNewsServiceImpl extends ServiceImpl<WmNewsMapper, WmNews> impleme
     private WmMaterialMapper wmMaterialMapper;
 
     @Autowired
-    private WmNewsAutoScanService wmNewsAutoScanService;
+    private WmUserService wmUserService;
 
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -184,6 +187,46 @@ public class WmNewsServiceImpl extends ServiceImpl<WmNewsMapper, WmNews> impleme
         }
 
         return ResponseResult.okResult(AppHttpCodeEnum.SUCCESS);
+    }
+
+    @Override
+    public ResponseResult listVo(NewsAuthDto dto) {
+        //检查参数
+        //检查参数
+        if (dto == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.PARAM_INVALID);
+        }
+        Integer page = dto.getPage();
+        Integer size = dto.getSize();
+        if (page == null || page <= 0) {
+            page = 1;
+        }
+        if (size == null || size < 0) {
+            size = 10;
+        }
+        //设置查询条件
+        IPage<WmNews> iPage = new Page<>(page, size);
+        LambdaQueryWrapper<WmNews> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(dto.getStatus() != null, WmNews::getStatus, dto.getStatus());
+        queryWrapper.like(StringUtils.isNotBlank(dto.getTitle()), WmNews::getTitle, dto.getTitle());
+        queryWrapper.orderByDesc(WmNews::getCreatedTime);
+        this.page(iPage, queryWrapper);
+
+
+        PageResponseResult pageResponseResult = new PageResponseResult(page, size, (int) iPage.getTotal());
+
+        List<WmNewsVo> collect = iPage.getRecords().stream().map(item -> {
+            WmUser wmUser = wmUserService.getById(item.getUserId());
+            WmNewsVo wmNewsVo = new WmNewsVo();
+            BeanUtils.copyProperties(item, wmNewsVo);
+            wmNewsVo.setAuthorName(wmUser.getName());
+            return wmNewsVo;
+        }).collect(Collectors.toList());
+        pageResponseResult.setData(collect);
+
+        pageResponseResult.setCode(200);
+        pageResponseResult.setErrorMessage("操作成功");
+        return pageResponseResult;
     }
 
     /**

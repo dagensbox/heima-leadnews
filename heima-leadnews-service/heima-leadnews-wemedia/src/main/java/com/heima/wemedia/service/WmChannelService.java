@@ -32,4 +32,9 @@ public interface WmChannelService extends IService<WmChannel> {
      * @return
      */
     ResponseResult listByPage(ChannelDto dto);
+
+    /**
+     * 更新频道
+     */
+    ResponseResult updateChannel(WmChannel wmChannel);
 }

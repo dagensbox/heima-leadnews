@@ -1,5 +1,6 @@
 package com.heima.wemedia.controller.v1;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.heima.model.common.dtos.ResponseResult;
 import com.heima.model.common.enums.AppHttpCodeEnum;
 import com.heima.model.wemedia.dtos.ChannelDto;
@@ -48,6 +49,11 @@ public class WmChannelController {
                 return ResponseResult.errorResult(AppHttpCodeEnum.DATA_EXIST);
             }
         }
+        WmChannel one = wmChannelService.getOne(Wrappers.<WmChannel>lambdaQuery().eq(WmChannel::getName, wmChannel.getName()));
+        if (one != null) {
+            return ResponseResult.errorResult(501, "频道名字重复");
+        }
+
         wmChannel.setCreatedTime(new Date());
         wmChannelService.save(wmChannel);
         return ResponseResult.okResult(AppHttpCodeEnum.SUCCESS);
@@ -55,16 +61,7 @@ public class WmChannelController {
 
     @PostMapping("/update")
     public ResponseResult updateChannel(@RequestBody WmChannel wmChannel) {
-        if (wmChannel == null || wmChannel.getId() == null || StringUtils.isBlank(wmChannel.getName())) {
-            return ResponseResult.errorResult(AppHttpCodeEnum.PARAM_INVALID);
-        }
-        WmChannel byId = wmChannelService.getById(wmChannel.getId());
-        if (byId == null) {
-            return ResponseResult.errorResult(AppHttpCodeEnum.DATA_NOT_EXIST);
-        }
-        wmChannel.setCreatedTime(new Date());
-        wmChannelService.updateById(wmChannel);
-        return ResponseResult.okResult(AppHttpCodeEnum.SUCCESS);
+        return wmChannelService.updateChannel(wmChannel);
     }
 
 }

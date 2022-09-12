@@ -59,6 +59,9 @@ public class WmNewsServiceImpl extends ServiceImpl<WmNewsMapper, WmNews> impleme
     private KafkaTemplate<String, String> kafkaTemplate;
 
     @Autowired
+    private WmNewsAutoScanService WmNewsTaskService;
+
+    @Autowired
     private WmNewsTaskService wmNewsTaskService;
 
     @Override
@@ -243,6 +246,38 @@ public class WmNewsServiceImpl extends ServiceImpl<WmNewsMapper, WmNews> impleme
         WmUser wmUser = wmUserService.getById(wmNews.getUserId());
         vo.setAuthorName(wmUser.getName());
         return ResponseResult.okResult(vo);
+    }
+
+    @Override
+    public ResponseResult authFail(NewsAuthDto dto) {
+        //检查参数
+        if (dto == null || dto.getId() == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.PARAM_INVALID);
+        }
+        WmNews wmNews = this.getById(dto.getId());
+        if (wmNews == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.DATA_NOT_EXIST);
+        }
+        wmNews.setStatus((short) 2);
+        wmNews.setReason(dto.getMsg());
+        this.updateById(wmNews);
+        return ResponseResult.okResult(AppHttpCodeEnum.SUCCESS);
+    }
+
+    @Override
+    public ResponseResult authPass(NewsAuthDto dto) {
+        //检查参数
+        if (dto == null || dto.getId() == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.PARAM_INVALID);
+        }
+        WmNews wmNews = this.getById(dto.getId());
+        if (wmNews == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.DATA_NOT_EXIST);
+        }
+        wmNews.setStatus((short)4);
+        this.updateById(wmNews);
+        WmNewsTaskService.saveApArticleAndUpdateWmNews(wmNews);
+        return ResponseResult.okResult(AppHttpCodeEnum.SUCCESS);
     }
 
     /**

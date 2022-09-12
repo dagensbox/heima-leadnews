@@ -104,15 +104,25 @@ public class WmNewsAutoScanServiceImpl implements WmNewsAutoScanService {
                 return;
             }
             //4、审核成功，保存app端的相关文章数据
-            ResponseResult result = saveAppArticle(wmNews);
-            if (!result.getCode().equals(AppHttpCodeEnum.SUCCESS.getCode())) {
-                throw new RuntimeException("WmNewsAutoScanServiceImpl-文章审核，保存app端相关文章数据失败");
-            }
-            //回填article_id
-            wmNews.setArticleId((Long) result.getData());
-            updateWmNews(wmNews, WmNews.Status.PUBLISHED.getCode(), "审核成功");
+            saveApArticleAndUpdateWmNews(wmNews);
         }
 
+    }
+
+    /**
+     * 审核完成后调用，用来 使用feign远程调用文章微服务生成文章，并回填wmnewsd
+     *
+     * @param wmNews
+     */
+    @Async
+    public void saveApArticleAndUpdateWmNews(WmNews wmNews) {
+        ResponseResult result = saveAppArticle(wmNews);
+        if (!result.getCode().equals(AppHttpCodeEnum.SUCCESS.getCode())) {
+            throw new RuntimeException("WmNewsAutoScanServiceImpl-文章审核，保存app端相关文章数据失败");
+        }
+        //回填article_id
+        wmNews.setArticleId((Long) result.getData());
+        updateWmNews(wmNews, WmNews.Status.PUBLISHED.getCode(), "审核成功");
     }
 
     /**
@@ -134,8 +144,8 @@ public class WmNewsAutoScanServiceImpl implements WmNewsAutoScanService {
 
         //查看文章中是否包含敏感词
         Map<String, Integer> matchWords = SensitiveWordUtil.matchWords(content + wmNews.getTitle());
-        if (matchWords.size() > 0){
-            this.updateWmNews(wmNews,WmNews.Status.FAIL.getCode(),"当前文章中存在违规内容"+matchWords);
+        if (matchWords.size() > 0) {
+            this.updateWmNews(wmNews, WmNews.Status.FAIL.getCode(), "当前文章中存在违规内容" + matchWords);
             flag = false;
         }
         return flag;
@@ -211,7 +221,7 @@ public class WmNewsAutoScanServiceImpl implements WmNewsAutoScanService {
 
                 //审核是否包含自己管理的敏感词
                 boolean isSensitive = handleSensitiveScan(result, wmNews);
-                if (!isSensitive){
+                if (!isSensitive) {
                     return false;
                 }
             }

@@ -66,4 +66,14 @@ public class WmNewsController {
     }
 
 
+    @PostMapping("/auth_fail")
+    public ResponseResult authFail(@RequestBody NewsAuthDto dto) {
+        return wmNewsService.authFail(dto);
+    }
+
+    @PostMapping("/auth_pass")
+    public ResponseResult authPass(@RequestBody NewsAuthDto dto) {
+        return wmNewsService.authPass(dto);
+    }
+
 }

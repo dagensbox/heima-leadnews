@@ -60,4 +60,20 @@ public interface WmNewsService extends IService<WmNews> {
      * @return
      */
     ResponseResult oneVoById(Long id);
+
+    /**
+     * 审核不通过
+     *
+     * @param dto
+     * @return
+     */
+    ResponseResult authFail(NewsAuthDto dto);
+
+    /**
+     * 审核通过
+     *
+     * @param dto
+     * @return
+     */
+    ResponseResult authPass(NewsAuthDto dto);
 }

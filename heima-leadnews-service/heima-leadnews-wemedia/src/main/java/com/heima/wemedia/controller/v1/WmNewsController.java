@@ -60,5 +60,10 @@ public class WmNewsController {
         return wmNewsService.listVo(dto);
     }
 
+    @GetMapping("/one_vo/{id}")
+    public ResponseResult oneVoById(@PathVariable Long id) {
+        return wmNewsService.oneVoById(id);
+    }
+
 
 }

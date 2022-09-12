@@ -52,4 +52,12 @@ public interface WmNewsService extends IService<WmNews> {
      * @return
      */
     ResponseResult listVo(NewsAuthDto dto);
+
+    /**
+     * 根据文章id查询
+     *
+     * @param id
+     * @return
+     */
+    ResponseResult oneVoById(Long id);
 }

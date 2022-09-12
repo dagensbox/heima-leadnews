@@ -192,7 +192,6 @@ public class WmNewsServiceImpl extends ServiceImpl<WmNewsMapper, WmNews> impleme
     @Override
     public ResponseResult listVo(NewsAuthDto dto) {
         //检查参数
-        //检查参数
         if (dto == null) {
             return ResponseResult.errorResult(AppHttpCodeEnum.PARAM_INVALID);
         }
@@ -227,6 +226,23 @@ public class WmNewsServiceImpl extends ServiceImpl<WmNewsMapper, WmNews> impleme
         pageResponseResult.setCode(200);
         pageResponseResult.setErrorMessage("操作成功");
         return pageResponseResult;
+    }
+
+    @Override
+    public ResponseResult oneVoById(Long id) {
+        //检查参数
+        if (id == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.PARAM_INVALID);
+        }
+        WmNews wmNews = this.getById(id);
+        if (wmNews == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.DATA_NOT_EXIST);
+        }
+        WmNewsVo vo = new WmNewsVo();
+        BeanUtils.copyProperties(wmNews, vo);
+        WmUser wmUser = wmUserService.getById(wmNews.getUserId());
+        vo.setAuthorName(wmUser.getName());
+        return ResponseResult.okResult(vo);
     }
 
     /**

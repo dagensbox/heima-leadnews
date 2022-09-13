@@ -7,6 +7,6 @@ xxl:
     admin:
       addresses: http://192.168.80.1:8888/xxl-job-admin
     executor:
-      appname: xxl-job-executor-sample
+      appname: xxl-job-sharding-sample
       port: ${executor.port:9999}
     accessToken: default_token

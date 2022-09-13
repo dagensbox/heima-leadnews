@@ -16,3 +16,11 @@ spring:
       retries: 10
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+xxl:
+  job:
+    admin:
+      addresses: http://192.168.80.1:8888/xxl-job-admin
+    executor:
+      appname: leadnews-hot-article-executor
+      port: 9999
+    accessToken: default_token

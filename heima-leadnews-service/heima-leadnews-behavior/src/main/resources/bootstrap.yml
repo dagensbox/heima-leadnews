@@ -1,0 +1,18 @@
+server:
+  port: 8006
+spring:
+  application:
+    name: leadnews-behavior
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.80.1:8848
+      config:
+        server-addr: 192.168.80.1:8848
+        file-extension: yml
+  kafka:
+    bootstrap-servers: 192.168.80.1:9092
+    producer:
+      retries: 10
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer

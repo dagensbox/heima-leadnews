@@ -1,5 +1,6 @@
 package com.heima.article.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.heima.article.mapper.ApArticleConfigMapper;
@@ -8,11 +9,13 @@ import com.heima.article.mapper.ApArticleMapper;
 import com.heima.article.service.ApArticleService;
 import com.heima.article.service.ArticleFreemarkerService;
 import com.heima.common.constants.ArticleConstants;
+import com.heima.common.redis.CacheService;
 import com.heima.model.article.dtos.ArticleDto;
 import com.heima.model.article.dtos.ArticleHomeDto;
 import com.heima.model.article.pojos.ApArticle;
 import com.heima.model.article.pojos.ApArticleConfig;
 import com.heima.model.article.pojos.ApArticleContent;
+import com.heima.model.article.vos.HotArticleVo;
 import com.heima.model.common.dtos.ResponseResult;
 import com.heima.model.common.enums.AppHttpCodeEnum;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +37,9 @@ public class ApArticleServiceImpl extends ServiceImpl<ApArticleMapper, ApArticle
 
     @Autowired
     private ApArticleConfigMapper apArticleConfigMapper;
+
+    @Autowired
+    private CacheService cacheService;
 
     @Autowired
     private ArticleFreemarkerService articleFreemarkerService;
@@ -81,6 +87,17 @@ public class ApArticleServiceImpl extends ServiceImpl<ApArticleMapper, ApArticle
     }
 
     @Override
+    public ResponseResult load2(Short loadType, ArticleHomeDto dto, boolean isFirstPage) {
+        if (isFirstPage) {
+            String jsonStr = cacheService.get(ArticleConstants.HOT_ARTICLE_FIRST_PAGE + dto.getTag());
+            if (StringUtils.isNotBlank(jsonStr)) {
+                return ResponseResult.okResult(JSON.parseArray(jsonStr, HotArticleVo.class));
+            }
+        }
+        return load(loadType, dto);
+    }
+
+    @Override
     public ResponseResult saveArticle(ArticleDto dto) {
         //1、检查参数
         if (dto == null) {
@@ -105,8 +122,8 @@ public class ApArticleServiceImpl extends ServiceImpl<ApArticleMapper, ApArticle
             apArticleContentMapper.insert(apArticleContent);
         } else {
             ApArticle byId = this.getById(apArticle.getId());
-            if (byId == null){
-                return ResponseResult.errorResult(501,"文章没有找到");
+            if (byId == null) {
+                return ResponseResult.errorResult(501, "文章没有找到");
             }
             //修改文章
             updateById(apArticle);
@@ -118,7 +135,7 @@ public class ApArticleServiceImpl extends ServiceImpl<ApArticleMapper, ApArticle
         }
 
         //异步调用 生成静态文件上传到minio中
-        articleFreemarkerService.buildArticle2Minio(apArticle,dto.getContent());
+        articleFreemarkerService.buildArticle2Minio(apArticle, dto.getContent());
 
         return ResponseResult.okResult(apArticle.getId());
     }

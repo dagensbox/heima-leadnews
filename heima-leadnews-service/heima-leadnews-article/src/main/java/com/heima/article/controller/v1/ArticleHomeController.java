@@ -27,7 +27,8 @@ public class ArticleHomeController {
     @PostMapping("/load")
     @ApiOperation("加载首页")
     public ResponseResult load(@RequestBody ArticleHomeDto dto) {
-        return apArticleService.load(ArticleConstants.LOADTYPE_LOADMORE, dto);
+//        return apArticleService.load(ArticleConstants.LOADTYPE_LOADMORE, dto);
+        return apArticleService.load2(ArticleConstants.LOADTYPE_LOADMORE, dto, true);
     }
 
     @PostMapping("/loadmore")
@@ -44,7 +45,7 @@ public class ArticleHomeController {
 
 
     @PostMapping("/save")
-    ResponseResult saveArticle(@RequestBody ArticleDto dto){
+    ResponseResult saveArticle(@RequestBody ArticleDto dto) {
         return apArticleService.saveArticle(dto);
     }
 }

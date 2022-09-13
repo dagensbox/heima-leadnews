@@ -1,4 +1,4 @@
-package com.itheima.pojo;
+package com.heima.kafka.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

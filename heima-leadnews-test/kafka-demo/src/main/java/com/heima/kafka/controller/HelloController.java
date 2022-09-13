@@ -1,7 +1,7 @@
-package com.itheima.controller;
+package com.heima.kafka.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.itheima.pojo.User;
+import com.heima.kafka.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;

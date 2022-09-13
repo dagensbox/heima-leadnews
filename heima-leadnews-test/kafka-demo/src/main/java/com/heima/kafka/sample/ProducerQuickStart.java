@@ -34,17 +34,22 @@ public class ProducerQuickStart {
         KafkaProducer<String, String> producer = new KafkaProducer<>(props);
 
         //封装发送的消息
-        ProducerRecord<String, String> record = new ProducerRecord<>("itheima-topic", 0, "100001", "hello kafka");
+//        ProducerRecord<String, String> record = new ProducerRecord<>("itcast_topic_input", 0, "100001", "hello kafka");
 
         //3、消息发送
 //        producer.send(record);
 
-        producer.send(record, (metadata, exception) -> {
+/*        producer.send(record, (metadata, exception) -> {
             if (exception != null) {
                 System.out.println("记录异常信息到日志表");
             }
             System.out.println(metadata.offset());
-        });
+        });*/
+
+        for (int i = 0; i < 5; i++) {
+            ProducerRecord<String,String> kvProducerRecord = new ProducerRecord<String,String>("itcast-topic-input","hello sb");
+            producer.send(kvProducerRecord);
+        }
 
 
         //4、关闭消息通道，必须关闭，否则，消息发送不成功

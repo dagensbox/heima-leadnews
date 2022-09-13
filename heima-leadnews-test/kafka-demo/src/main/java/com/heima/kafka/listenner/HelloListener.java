@@ -1,7 +1,7 @@
-package com.itheima.listenner;
+package com.heima.kafka.listenner;
 
 import com.alibaba.fastjson.JSON;
-import com.itheima.pojo.User;
+import com.heima.kafka.pojo.User;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;

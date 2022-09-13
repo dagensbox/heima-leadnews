@@ -1,4 +1,4 @@
-package com.itheima;
+package com.heima.kafka;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
